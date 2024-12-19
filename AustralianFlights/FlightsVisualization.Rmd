@@ -1,0 +1,223 @@
+---
+title: "Analysis of International Flights: 2003-2018"
+author: ""
+subtitle: ""
+date: " "
+output:
+  html_document:
+    fig_caption: yes
+    number_sections: yes
+    self_contained: yes
+    theme: flatly
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    code_folding: hide
+---
+
+<br>
+
+# Recommendation
+
+Analysis of International Flights operating from Australia provides an overview of the industry, pointing out trends over the course of time for which the data represents, 2003 to 2018. The findings are well suited to answers regarding questions such as:
+
+1. Trends in both In-Bound and Out-Bound Flights
+2. Flight traffics across cities
+3. Consistency of airlines
+4. Consistent flight routes
+
+The stated questions within the Australia aviation industry provide an understanding of the market being served, and can provide our client, herein also referred to as a stakeholder with competitive advantage in the case:
+
+1. setting out routes, promotional flight discounts for air travel businesses
+2. locations for setting up aviation associated business
+3. Demand cycle within the air travel industry
+4. airlines to partner with to market businesses
+
+
+<br>
+
+# Evidence
+
+## Loading libraries and Data
+Variables of interest herein are the `in-bound`, `out-bound`, `Australian cities`, `airline`, `route`, `all flights`, `year`, `month`.
+
+```{r, warning=FALSE, message=FALSE}
+library(tidyverse)
+```
+
+Pre-processing of the data before exploratory analysis involved the transformation of date elements `year` and `month` variables, to add time series element to the data to capture trends with ease.
+
+```{r, warning=FALSE,message=FALSE} 
+flights = readr::read_csv(
+  "flights.csv"
+)
+flights$Date <- as.Date(paste(flights$Year, flights$Month_num,"01", sep = "-")) 
+```
+
+## In-Bound and Out-Bound Traffic
+
+The `in-bound` and `out-bound` traffic provide a general view on the development of the aviation sector within Australia. Data on flights was grouped as either `in-bound` or `out-bound`, and according to the `date`, after which summation of the number of `flights` was undertaken.
+
+```{r, warning=FALSE, message=FALSE, fig.align='center', dpi=350, fig.width=10, fig.height=8}
+##InOut-----------------------------
+in_out_flights_data <- flights |> 
+  select(In_Out, All_Flights, Date) |> 
+  group_by(In_Out, Date) |> 
+  summarise(sum = sum(All_Flights))
+#head(in_out_flights_data)
+#Plot of Inbound and OutBound Flights Over Course of Time
+plot_in_out_flight <- in_out_flights_data |> 
+  ggplot(aes(x = Date, y = sum, color = In_Out)) + 
+  geom_line() + scale_x_date(date_breaks="1 year", date_labels="%Y") +
+  geom_point() +
+  theme_bw() + 
+  labs(title = "Total In-Bound and Out-Bound Flights",
+       caption = "https://github.com/akhapwoyaco") + 
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(), 
+        legend.position = "top",
+        plot.title = element_text(hjust = 0.5)) + 
+  scale_color_discrete(
+    limits = c("I","O"),
+      labels = c("Inbound", "OutBound")
+  ) +
+  guides(color = guide_legend(title = NULL))
+plot_in_out_flight
+
+ggsave("plot_in_out_flight.png",plot = plot_in_out_flight, 
+       width = 35, height = 20, unit = "cm", dpi = 400)
+```
+
+There was a general rise in the total number of both `in-bound` and `out-bound` flights in Australia from the year 2003 all through to 2018. This can be attributed to various socio-economic factors that would warrant the demand for air travel into and out of Australia. Within yearly periods, we can spot spikes in the total number of flights for both cases just as the year ends, while drop in the number for months after the start of the year up until mid-year when the trend rises. The trend is cyclical, with the peaks being attributed to holiday seasons. As such, being able to leverage on the demand cycle on air travel within Australia can provide a better outlay for stakeholders setting up, running and investing in businesses directly or indirectly influenced by the aviation sector in Australia.
+
+## Cities with Highest and Consistent In-Bound and Out-Bound flights
+
+Data on flights was grouped as either `in-bound` or `out-bound`, then by the `city` and finally according to the `date`, after which summation of the number of `flights` was undertaken. The goal is to identify Australian Cities that over the years have maintained the highest of air traffics based on subset of the data.
+
+```{r, warning=FALSE, message=FALSE, fig.align='center', dpi=350, fig.width=10, fig.height=8}
+## City Traffic ---------------------
+
+in_out_city_flights_data <- flights |> 
+  select(In_Out, Australian_City, All_Flights, Date) |> 
+  group_by(In_Out, Australian_City, Date) |> 
+  summarise(sum = sum(All_Flights)) |> 
+  mutate(Bound = recode(In_Out, "I" = "In Bound", "O" = "Out Bound"))
+#head(in_out_city_flights_data)
+#Plot of Inbound and OutBound Flights Over Course of Time
+plot_in_out_city_flight <- in_out_city_flights_data |> 
+  filter(Australian_City %in% c("Brisbane", "Melbourne", "Perth", "Sydney")) |> 
+  ggplot(aes(x = Date, y = sum, color = Australian_City)) + 
+  geom_line() + scale_x_date(date_breaks="1 year", date_labels="%Y") +
+  geom_point() +
+  theme_bw() + 
+  labs(title = "Top Cities In Total In-Bound and Out-Bound Flights",
+       caption = "https://github.com/akhapwoyaco") + 
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(), 
+        legend.position = "top",
+        plot.title = element_text(hjust = 0.5),
+        strip.text = element_text(face = "bold", size = rel(1.5))) + 
+  scale_y_continuous(limits = c(0, max(in_out_city_flights_data$sum)))+
+  guides(color = guide_legend(nrow=1,byrow=TRUE,title = NULL)) + 
+  facet_grid(Bound ~.)
+
+plot_in_out_city_flight
+
+ggsave("plot_in_out_city_flight.png",plot = plot_in_out_city_flight, 
+       width = 35, height = 25, unit = "cm", dpi = 400)
+
+```
+
+The `Australian Cities` Brisbane, Melbourne, Perth, Sydney have over the years been on a rising trend and consistent in the number of flights recorded. According to Aulich and Hughes (2013), the Brisbane, Melbourne, Sydney are among the largest airports in Australia and as such with the infrastructure they possess are well suited to accommodate in-bound and out-bound traffic to a larger scale compared to others. Keeping this in mind, stakeholders can well setup or invest in businesses around them, given the high amount of exposure to a wider market.
+
+## Airlines with Highest and Consistent In-Bound and Out-Bound flights
+
+Data on flights was grouped as either `in-bound` or `out-bound`, then by the `airline` and finally according to the `date`, after which summation of the number of `flights` was undertaken. The goal is to identify airlines that over the years have been consistent and maintained the highest of air traffics into and out of Australia using subset of the data.
+
+
+```{r, warning=FALSE, message=FALSE, fig.align='center', dpi=350, fig.width=10, fig.height=8}
+## Airline Traffic ---------------------
+in_out_air_flights_data <- flights |> 
+  select(In_Out, Airline, All_Flights, Date) |> 
+  group_by(In_Out, Airline, Date) |> 
+  summarise(sum = sum(All_Flights)) |> 
+  mutate(Bound = recode(In_Out, "I" = "In Bound", "O" = "Out Bound"))
+#head(in_out_air_flights_data)
+#Plot of Inbound and OutBound Flights Over Course of Time
+plot_in_out_air_flight <- in_out_air_flights_data |> 
+  filter(Airline %in% c(
+    "Air New Zealand", "Emirates", "Jetstar", "Qantas Airways",
+    "Singapore Airlines", "Virgin Australia","Cathay Pacific Airways")) |> 
+  #filter(sum>250) |> 
+  ggplot(aes(x = Date, y = sum, color = Airline)) + 
+  geom_line() + scale_x_date(date_breaks="1 year", date_labels="%Y") +
+  geom_point() +
+  theme_bw() + 
+  labs(title = "Top Airlines With Total In and OutBound Flights",
+       caption = "https://github.com/akhapwoyaco") + 
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(), 
+        legend.position = "top",
+        plot.title = element_text(hjust = 0.5),
+        strip.text = element_text(face = "bold", size = rel(1.5))) + 
+  scale_y_continuous(limits = c(0, max(in_out_air_flights_data$sum)))+
+  guides(color = guide_legend(nrow=1,byrow=TRUE,title = NULL)) + 
+  facet_grid(Bound ~.)
+
+plot_in_out_air_flight
+
+ggsave("plot_in_out_air_flight.png",plot = plot_in_out_air_flight, 
+       width = 35, height = 25, unit = "cm", dpi = 400)
+```
+
+The top airlines over the years have been consistent in their flight schedules. The airlines according to publications at (Bureau of Infrastructure and Transport Research Economics) point them out as some of the best airlines in Australia. As such, forming of partnerships with the airlines to offer services to those traveling using them is a business opportunity to be explored while marketing themselves.
+
+## Flight Routes with Highest and Consistent In-Bound and Out-Bound flights
+
+Data on flights was grouped as either `in-bound` or `out-bound`, then by the `route` and finally according to the `date`, after which summation of the number of `flights` was undertaken. The goal is to identify routes that over the years have been frequently used for air travel into and out of Australia using a subset of the data.
+
+```{r, warning=FALSE, message=FALSE, fig.align='center', dpi=350, fig.width=10, fig.height=8}
+## Route Traffic ---------------------
+in_out_route_flights_data <- flights |> 
+  select(In_Out, Route, All_Flights, Date) |> 
+  group_by(In_Out, Route, Date) |> 
+  summarise(sum = sum(All_Flights)) |> 
+  mutate(Bound = recode(In_Out, "I" = "In Bound", "O" = "Out Bound"))
+#head(in_out_route_flights_data)
+#Plot of Inbound and OutBound Flights Over Course of Time
+plot_in_out_route_flight <- in_out_route_flights_data |> 
+  filter(Route %in% c("AKL-SYD", "SYD-AKL")) |> 
+   #filter(sum>250) |> 
+  ggplot(aes(x = Date, y = sum, color = Route)) + 
+  geom_line() + scale_x_date(date_breaks="1 year", date_labels="%Y") +
+  geom_point() +
+  theme_bw() + 
+  labs(title = "Top Airlines With Total In and OutBound Flights",
+       caption = "https://github.com/akhapwoyaco") + 
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(), 
+        legend.position = "top",
+        plot.title = element_text(hjust = 0.5),
+        strip.text = element_text(face = "bold", size = rel(1.5))) + 
+  guides(color = guide_legend(nrow=1,byrow=TRUE,title = NULL)) + 
+  facet_grid(Bound ~.)
+
+plot_in_out_route_flight
+
+ggsave("plot_in_out_route_flight.png",plot = plot_in_out_route_flight, 
+       width = 35, height = 25, unit = "cm", dpi = 400)
+
+```
+
+The most common flight path taken was the Auckland, New Zealand (AKL) to Sydney, Australia (SYD) route. Gross and Lück, (2011) attribute the popularity of the route to the availability of low cost carriers operating on longer distances, which makes it suitable for the target market. The presence of low cost carriers means that barrier to entry into the industry is easy as such investment and setting up an aviation airline to serve the market within the route is a viable option.
+
+<br>
+
+
+# References
+
+Aulich, C., & Hughes, M. (2013). Privatizing Australian airports: Ownership, divestment and financial performance. Public Organization Review, 13(2), 175-184.
+
+Bureau of Infrastructure and Transport Research Economics. (n.d.). bitre. Bureau of Infrastructure and Transport Research Economics. https://www.bitre.gov.au/publications/publications.
+
+Gross, S., & Lück, M. (2011). Flying for a buck or two: Low-cost Carriers in Australia and New Zealand. Available at SSRN 2742114.

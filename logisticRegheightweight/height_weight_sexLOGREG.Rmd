@@ -1,0 +1,188 @@
+---
+title: "Logistic Regression 2"
+author: "ACO"
+subtitle: ""
+date: "`r Sys.time()`"
+output:
+  html_document:
+    fig_caption: yes
+    number_sections: yes
+    self_contained: yes
+    theme: flatly
+    toc: true
+    toc_depth: 4
+    toc_float: true
+    code_folding: hide
+---
+
+<br>
+
+# Analysis
+
+## Data Import
+
+```{r, warning=FALSE,message=FALSE,attr.source='.numberLines',attr.output='.numberLines'}
+library(readr)
+library(ggplot2)
+```
+
+
+```{r, warning=FALSE,message=FALSE,attr.source='.numberLines',attr.output='.numberLines'}
+data_45 <- read_csv(
+  "data1.csv")
+#
+data_45$Sex <- factor(data_45$Sex)
+data_45$Improved <- ifelse(data_45$Improved==TRUE,1,0)
+```
+
+<br>
+
+## Logistic Regressions Tables
+
+### `Improved ~ Sex` logistic model.
+
+```{r,warning=FALSE,message=FALSE,attr.source='.numberLines',attr.output='.numberLines'} 
+#Sex Only
+imp_sex_log <- glm(Improved ~ Sex, data = data_45, family = "binomial")
+summary(imp_sex_log)
+```
+
+<br>
+
+### `Improved ~ Height` logistic model.
+
+```{r,warning=FALSE,message=FALSE,attr.source='.numberLines',attr.output='.numberLines'} 
+#Height Only
+imp_height_log <- glm(
+  Improved ~ `Height (cm)`, 
+  data = data_45, family = "binomial")
+summary(imp_height_log)
+```
+
+<br>
+
+### `Improved ~ Weight` logistic model.
+
+```{r,warning=FALSE,message=FALSE,attr.source='.numberLines',attr.output='.numberLines'} 
+#Weight Only
+imp_wei_log <- glm(
+  Improved ~ `Weight (kg)`, 
+  data = data_45, family = "binomial")
+summary(imp_wei_log)
+
+```
+
+<br>
+
+### `Improved ~ Sex + Height + Weight` logistic model.
+
+```{r,warning=FALSE,message=FALSE,attr.source='.numberLines',attr.output='.numberLines'} 
+#combination
+imp_hei_wei_log <- glm(
+  Improved ~ Sex + `Height (cm)` + `Weight (kg)`, 
+  data = data_45, family = "binomial")
+summary(imp_hei_wei_log)
+```
+
+<br>
+
+### `Improved ~ Sex + Height + Weight + Height*Weight` logistic model.
+
+```{r,warning=FALSE,message=FALSE,attr.source='.numberLines',attr.output='.numberLines'} 
+#Combined + weight height interaction
+imp_combi_log <- glm(
+  Improved ~ Sex + `Height (cm)`*`Weight (kg)`, 
+  data = data_45, family = "binomial")
+summary(imp_combi_log)
+```
+
+<br>
+
+1. Sex is a significant predictor of Improved 
+($\beta$= `r summary(imp_sex_log)$coefficients[2,1]`,$p$=`r summary(imp_sex_log)$coefficients[2,4]`).
+
+2. Males show an increase in the Odds of the subject's symptoms by `r 100 * (exp(summary(imp_combi_log)$coefficients[2,1]) - 1)` %.
+3. When looking at Weight , Height , Sex , and the interaction of Weight and Height the below terms are significant. Note: non-significant terms were removed.
+
++ Weight ($\beta$= `r summary(imp_combi_log)$coefficients[4,1]`, $p$= `r summary(imp_combi_log)$coefficients[4,4]`)
++ Height ($\beta$= `r summary(imp_combi_log)$coefficients[3,1]`, $p$= `r summary(imp_combi_log)$coefficients[3,4]`)
++ Sex ($\beta$= `r summary(imp_combi_log)$coefficients[2,1]`, $p$= `r summary(imp_combi_log)$coefficients[2,4]`)
++ Weight:Height ($\beta$= `r summary(imp_combi_log)$coefficients[5,1]`, $p$= `r summary(imp_combi_log)$coefficients[5,4]`)
+
+4. When comparing the two models from last week and the two from this week on AIC, 
+the [Weight only]/[ Height only]/[ Sex only]/[combination] model is the best.
+
+<br>
+
+# Figures
+
+## Improved vs Height
+
+```{r,warning=FALSE,message=FALSE,attr.source='.numberLines',attr.output='.numberLines', fig.align='center', dpi=350, fig.width=10, fig.height=8} 
+hei_impr_plot <- data_45 |>
+  ggplot(aes(x = `Height (cm)`, y = Improved)) +
+  geom_jitter(width = 0, height = 0.02) +
+  geom_smooth(
+    method="glm", se=T, 
+              method.args = list(family="binomial"))+ 
+  labs(x = "Height", caption = "https://github.com/akhapwoyaco") +
+  theme_bw()
+
+hei_impr_plot
+ggsave("hei_impr_plot.png",plot = hei_impr_plot, 
+       width = 35, height = 20, unit = "cm", dpi = 400)
+```
+
+<br>
+
+## Improved vs Weight
+
+```{r,warning=FALSE,message=FALSE,attr.source='.numberLines',attr.output='.numberLines', fig.align='center', dpi=350, fig.width=10, fig.height=8} 
+wei_impr_plot <- data_45  |> 
+  ggplot(aes(x = `Weight (kg)`, y = Improved)) +
+  geom_jitter(width = 0, height = 0.02) +
+  geom_smooth(method="glm", se=T, 
+              method.args = list(family=binomial))+ 
+  labs(x = "Weight", caption = "https://github.com/akhapwoyaco") +
+  theme_bw()
+wei_impr_plot
+ggsave("wei_impr_plot.png",plot = wei_impr_plot, 
+       width = 35, height = 20, unit = "cm", dpi = 400)
+```
+<br>
+
+## Improved vs Height by Sex
+
+```{r,warning=FALSE,message=FALSE,attr.source='.numberLines',attr.output='.numberLines', fig.align='center', dpi=350, fig.width=10, fig.height=8} 
+hei_impr_sex_plot <- data_45 |> 
+  ggplot(aes(x = `Height (cm)`, y = Improved, color = Sex)) +
+  geom_jitter(width = 0, height = 0.02) +
+  geom_smooth(method="glm", se=T, 
+              method.args = list(family=binomial))+ 
+  scale_color_discrete(labels = c("Female","Male")) + 
+  labs(x = "Height", caption = "https://github.com/akhapwoyaco") +
+  theme_bw()
+hei_impr_sex_plot
+ggsave("hei_impr_sex_plot.png",plot = hei_impr_sex_plot, 
+       width = 35, height = 20, unit = "cm", dpi = 400)
+```
+
+<br>
+
+## Improved vs Weight by Sex
+
+```{r,warning=FALSE,message=FALSE,attr.source='.numberLines',attr.output='.numberLines', fig.align='center', dpi=350, fig.width=10, fig.height=8} 
+wei_impr_sex_plot <- data_45  |> 
+  ggplot(aes(x = `Weight (kg)`, y = Improved, color = Sex)) +
+  geom_jitter(aes(color=Sex),width = 0, height = 0.02) +
+  geom_smooth(method="glm", se=T, 
+              method.args = list(family=binomial)) + 
+  scale_color_discrete(labels = c("Female","Male")) + 
+  labs(x = "Weight", caption = "https://github.com/akhapwoyaco") +
+  theme_bw()
+wei_impr_sex_plot
+ggsave("wei_impr_sex_plot.png",plot = wei_impr_sex_plot, 
+       width = 35, height = 20, unit = "cm", dpi = 400)
+```
+
+<br>
