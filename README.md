@@ -18,7 +18,7 @@ Visualizations of Various Datasets
 
 ## [Election 2016 Trump Margins](TrumpElection2016/)
 
-- Visualization of election 2016 Trump Votes Margin
+-   Visualization of election 2016 Trump Votes Margin
 
 ![trump_hist.png](TrumpElection2016/trump_hist.png)
 
@@ -27,3 +27,12 @@ Visualizations of Various Datasets
 -   The data on wine constituents is obtained from the [UC Irvine Machine Learning Repository](https://archive.ics.uci.edu/dataset/109/wine), details the the quantitive level of 13 constituents in three types of wine.
 
 ![Wine Box Plots](./WINES/wine_box_plots.png) ![Wine Density Plots](./WINES/density_plots.png)
+
+## [Tour De France](./TourDeFrance)
+
+
+- Tour de France Statistics Winner, distance, speed, location, and more about Tour de France since 1903.
+- Data source: <https://public.tableau.com/app/learn/sample-data>
+
+
+![winners_average_speed_deviation](./TourDeFrance/plots/winners_average_speed_deviation.jpeg)
