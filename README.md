@@ -36,3 +36,7 @@ Visualizations of Various Datasets
 
 
 ![winners_average_speed_deviation](./TourDeFrance/plots/winners_average_speed_deviation.jpeg)
+
+## [Tokyo 2021 Entries and Medals](./Tokyo2021)
+
+![Entries by Gender_datas_plot](./Tokyo2021/plots/gender_datas_plot.png)
