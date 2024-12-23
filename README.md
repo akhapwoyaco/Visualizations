@@ -30,13 +30,15 @@ Visualizations of Various Datasets
 
 ## [Tour De France](./TourDeFrance)
 
-
-- Tour de France Statistics Winner, distance, speed, location, and more about Tour de France since 1903.
-- Data source: <https://public.tableau.com/app/learn/sample-data>
-
+-   Tour de France Statistics Winner, distance, speed, location, and more about Tour de France since 1903.
+-   Data source: <https://public.tableau.com/app/learn/sample-data>
 
 ![winners_average_speed_deviation](./TourDeFrance/plots/winners_average_speed_deviation.jpeg)
 
 ## [Tokyo 2021 Entries and Medals](./Tokyo2021)
 
 ![Entries by Gender_datas_plot](./Tokyo2021/plots/gender_datas_plot.png)
+
+## [Amazon Fires](./AmazonFires)
+
+![AmazonFires](./AmazonFires/plot/AmazonFires11.png)
