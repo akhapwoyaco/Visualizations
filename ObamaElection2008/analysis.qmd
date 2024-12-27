@@ -1,0 +1,82 @@
+---
+title: "R Studio Plots"
+author: "Author"
+date: "`r Sys.Date()`"
+output:
+  word_document:
+    toc: yes
+    toc_depth: '6'
+  html_notebook:
+    fig_caption: no
+    toc: yes
+    toc_depth: 6
+    toc_float: yes
+  pdf_document:
+    toc: yes
+    toc_depth: '6'
+urlcolor: blue
+subtitle: ' '
+fontsize: 12pt
+---
+
+\newpage
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(echo = T, warning=FALSE, message=FALSE, fig.width=10, fig.height=8)
+```
+
+## Library Import
+
+```{r}
+library(learningr)
+data("obama_vs_mccain")
+```
+
+## BASE R
+
+```{r, fig.cap='2008 Presidential Election'}
+jpeg("base_r_plot.jpeg", width = 35, height = 20, units = "cm", res = 350)
+plot(
+  obama_vs_mccain$Obama~obama_vs_mccain$Unemployment,
+  xlab = "Percentage of people who are unemployed.", 
+  ylab = "Percentage of voters who voted for Barack Obama",
+  main = "BASE R Plot: 2008 Presidential Election", cex.lab = 0.7,
+  pch = 19, col = 'blue');grid()
+mtext("https://github.com/akhapwoyaco", side = 1, line = 3, padj = 1, adj = 0)
+dev.off()
+```
+
+## LATTICE
+
+```{r}
+library(lattice)
+jpeg("lattice_plot.jpeg", width = 35, height = 20, units = "cm", res = 350)
+xyplot(obama_vs_mccain$Obama~obama_vs_mccain$Unemployment,
+       xlab = "Percentage of people who are unemployed.", 
+       ylab = "Percentage of voters who voted for Barack Obama",
+       main = "Lattice Plot: 2008 Presidential Election")
+# mtext("https://github.com/akhapwoyaco", side = 1, line = 3, padj = 1, adj = 0)
+dev.off()
+```
+
+## GGPLOTT2
+```{r}
+library(ggplot2)
+ggplot_plot = ggplot(data = obama_vs_mccain, aes(x = Unemployment, y = Obama)) +
+  geom_point(color = 'blue') + theme_bw() + 
+  labs(
+    x = "Percentage of people who are unemployed.", 
+    y = "Percentage of voters who voted for Barack Obama",
+    title = "GGPLOT2 Plot: 2008 Presidential Election",
+    caption = "https://github.com/akhapwoyaco"
+  ) +
+  theme(
+    plot.title = element_text(face = 'bold', hjust = 0.5)
+  )
+ggplot_plot
+ggsave(
+  ggplot_plot, height = 20, units = "cm",
+  filename = "ggplot_plot.png", width = 30)
+
+```
+

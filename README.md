@@ -41,5 +41,8 @@ Visualizations of Various Datasets
 
 ## [Amazon Fires](./AmazonFires)
 
-+ data Source: https://www.kaggle.com/code/swarnendud/data-analysis-on-amazon-forest-fires/input
-![AmazonFires](./AmazonFires/plot/AmazonFires11.png)
+-   data Source: <https://www.kaggle.com/code/swarnendud/data-analysis-on-amazon-forest-fires/input> ![AmazonFires](./AmazonFires/plot/AmazonFires11.png)
+
+## [Obama Election 2008](./ObamaElection2008)
+
+![Percentage of voters who voted for Barack Obama vs Percentage of people who are unemployed](./ObamaElection2008/base_r_plot.jpeg)
