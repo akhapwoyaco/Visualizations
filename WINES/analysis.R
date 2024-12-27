@@ -110,5 +110,5 @@ wine_correlation_plot <- split(x = wine, f = wine$Cultivar) |> purrr::map(select
 wine_correlation_plot
 ggsave(
   wine_correlation_plot, height = 20, units = "cm",
-        filename = "wine_correlation_plot.png", width = 20)
+        filename = "wine_correlation_plot.png", width = 30)
 #

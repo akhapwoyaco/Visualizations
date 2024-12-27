@@ -41,4 +41,5 @@ Visualizations of Various Datasets
 
 ## [Amazon Fires](./AmazonFires)
 
++ data Source: https://www.kaggle.com/code/swarnendud/data-analysis-on-amazon-forest-fires/input
 ![AmazonFires](./AmazonFires/plot/AmazonFires11.png)
