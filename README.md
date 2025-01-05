@@ -46,3 +46,15 @@ Visualizations of Various Datasets
 ## [Obama Election 2008](./ObamaElection2008)
 
 ![Percentage of voters who voted for Barack Obama vs Percentage of people who are unemployed](./ObamaElection2008/base_r_plot.jpeg)
+
+## [Health Impact Analysis](./Health%20Impact%20Analysis%20England)
+
+-   An investigation of the hospital admission rates for COPD in England between 2001–2010, based on datasets:
+
+-   Number of hospital admissions due to COPD for each year between 2001 and 2010 in 324 local authority administrative areas in England.
+
+-   Expected number of cases,
+
+-   The observed counts
+
+![SMR_plot.jpeg](./Health%20Impact%20Analysis%20England/SMR_plot.jpeg)

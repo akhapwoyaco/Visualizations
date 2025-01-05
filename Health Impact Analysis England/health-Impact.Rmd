@@ -1,0 +1,171 @@
+---
+title: "Health Impact Analysis England"
+author: "Author"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    df_print: paged
+    toc: yes
+    toc_depth: '6'
+  pdf_document:
+    toc: yes
+    toc_depth: '6'
+  html_notebook:
+    fig_caption: no
+    toc: yes
+    toc_depth: 6
+    toc_float: yes
+  word_document:
+    toc: yes
+    toc_depth: '6'
+urlcolor: blue
+subtitle: "Ref/Def Assignment"
+---
+
+\newpage
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(echo = F)
+```
+
+\newpage
+
+# Health Impact Analysis
+
+```{r,warning=FALSE,message=FALSE,attr.source='.numberLines',attr.output='.numberLines', fig.align='center', dpi=350, fig.width=10, fig.height=8} 
+library(sf)
+library(sp)
+library(tidyverse)
+library(broom)
+```
+
+## Summary of the number of hospital admissions for COPD in England between 2001 and 2010.
+
+```{r,warning=FALSE,message=FALSE,attr.source='.numberLines',attr.output='.numberLines', fig.align='center', dpi=350, fig.width=10, fig.height=8} 
+copdobserved <- read.csv("data/copdobserved.csv")
+copdexpected <- read.csv("data/copdexpected.csv")
+summary(copdobserved)
+```
+
+\newpage
+## 2. Estimating the raw and smoothed standardised morbidity ratios (SMR). 
+
+We look for any spatial(!) patterns and/or extreme values and consider any potential reasons for them and note any differences between raw and the smoothed estimates.
+
+
+```{r,warning=FALSE,message=FALSE,attr.source='.numberLines',attr.output='.numberLines', fig.align='center', dpi=350, fig.width=15, fig.height=15} 
+full_data <- merge(copdobserved, copdexpected, by = c("Name"))
+full_data$SMR_2001 <- full_data$Y2001/full_data$E2001
+full_data$SMR_2002 <- full_data$Y2002/full_data$E2002
+full_data$SMR_2003 <- full_data$Y2003/full_data$E2003
+full_data$SMR_2004 <- full_data$Y2004/full_data$E2004
+full_data$SMR_2005 <- full_data$Y2005/full_data$E2005
+full_data$SMR_2006 <- full_data$Y2006/full_data$E2006
+full_data$SMR_2007 <- full_data$Y2007/full_data$E2007
+full_data$SMR_2008 <- full_data$Y2008/full_data$E2008
+full_data$SMR_2009 <- full_data$Y2009/full_data$E2009
+full_data$SMR_2010 <- full_data$Y2010/full_data$E2010
+
+SMR_Data <- full_data[c("Name",
+  "SMR_2001", "SMR_2002", "SMR_2003", "SMR_2004", "SMR_2005", 
+  "SMR_2006", "SMR_2007", "SMR_2008", "SMR_2009", "SMR_2010")]
+```
+
+```{r,warning=FALSE,message=FALSE,attr.source='.numberLines',attr.output='.numberLines', fig.align='center', dpi=350, fig.width=10, fig.height=8} 
+# read the shapefile of the map of England Local Authorities
+shp <- sf::st_read("data", layer = "englandlocalauthority", 
+               stringsAsFactors = F)
+summary(shp)
+```
+
+```{r,warning=FALSE,message=FALSE,attr.source='.numberLines',attr.output='.numberLines', fig.align='center', dpi=350, fig.width=10, fig.height=10, plot.cap = 'SMR Rates'} 
+shp_data = shp |> 
+  left_join(SMR_Data, by = c("name" = "Name"))
+```
+
+
+```{r,warning=FALSE,message=FALSE,attr.source='.numberLines',attr.output='.numberLines', fig.align='center', dpi=350, fig.width=10, fig.height=10, plot.cap = 'SMR Rates'} 
+SMR_plot = shp_data |> 
+  select(-name) |> 
+  pivot_longer(
+    cols = !geometry,
+    names_to = 'period',
+    values_to = 'SMR'
+  ) |>
+  ggplot() +
+  geom_sf(aes(fill = SMR)) +
+  facet_wrap(.~period) +
+  theme_void() +
+  theme(
+    axis.title = element_blank(),
+    legend.title = element_blank(),
+    legend.background = element_blank(),
+    legend.box.background = element_blank(),
+    legend.key = element_blank(),
+    legend.position = c(0.7, 0.3),
+    legend.direction = "horizontal"
+    )
+#
+SMR_plot
+ggsave(
+  "SMR_plot.jpeg",plot = SMR_plot, 
+  width = 35, height = 25, unit = "cm", dpi = 450
+  )
+```
+
+
+`UA Areas:` Majority of the local authorities within the UA region are with the SMR across the years ranging within the more than or equal to a rate of 1. This would imply that there are more than Expected number of hospital admissions for COPD across the years. 
+
+`LB Areas:` Majority of the local authorities within the LB region are darker, with the SMR across the years ranging within the less than 0.5 rate. This would imply that there are fewer than Expected number of hospital admissions for COPD across the years. 
+
+`CD Areas:` Majority of the local authorities within the CD region are with the SMR rates across the years ranging within the less than or equal to 1 but higher than 0.5 rate. This would imply that there are fewer than or equal Expected number of hospital admissions for COPD across the years of observation. 
+
+\newpage
+## Changes in the risks of hospitalisation due to COPD in England over time.
+
+```{r,warning=FALSE,message=FALSE,attr.source='.numberLines',attr.output='.numberLines', fig.align='center', dpi=350, fig.width=10, fig.height=8, fig.cap='local authorities grouping'} 
+area_plot <- shp_data |> 
+  mutate(
+    ABB = str_sub(name,-2)
+    ) |>
+  select(-name) |> 
+  pivot_longer(
+    cols = SMR_2001:SMR_2010,
+    names_to = 'period',
+    values_to = 'SMR'
+  ) |>
+  ggplot() +
+  geom_sf(aes(fill = ABB)) +
+  facet_wrap(.~period) +
+  theme_void() +
+  theme(
+    axis.title = element_blank(),
+    legend.title = element_blank(),
+    legend.background = element_blank(),
+    legend.box.background = element_blank(),
+    legend.key = element_blank(),
+    legend.position = c(0.7, 0.3),
+    legend.direction = "horizontal"
+    )
+#
+area_plot
+ggsave(
+  "area_plot.jpeg",plot = area_plot, 
+  width = 35, height = 25, unit = "cm", dpi = 450
+  )
+```
+
+
+The difference in changes across the local authorities may be associated with the level of population, relative to the facilities available within the hospital. There were no relative changes across the years as per the grouping of the local authorities, relative to the SMR rates. We might be inclined to make assumptions that as the populations have changes over time within the local authorities, so have the number of hospitalizations.
+
+\newpage
+## Suppose a government minister wants to increase resources to hospitals to cope with admissions for COPD. 
+
+The SMR rates were calculated by dividing the Observed number of hospital admissions for COPD in the year 20XX by Expected number of hospital admissions for COPD in the year 20XX per local authority. The SMR ratios were then visualized to point out trends across the various localities. We noticed that over time, there were changes in the raw and smoothed standardized morbidity ratios (SMR) across the different local authorities by the groupings. The grouping for the analysis were the UA, LB, CD areas, that facilitated ease of assessment of patterns across the years. We made an assumption that the groupings imply similar healthcare systems for the localities within them. The assessment noted that in the:
+
+1. UA areas, there are more than Expected number of hospital admissions for COPD across the years
+2. LB areas, there are fewer than Expected number of hospital admissions for COPD across the years
+3. CD areas, there are fewer than or equal Expected number of hospital admissions for COPD across the years.
+
+Across the years, we note minor changes and sifts within the SMR rates, which may or may not be significant in terms of pointing out notables patterns. However, generally, we can categorically point out the distinction in the rates across groupings which we assume may have a higher influence on the hospitalisation rates. We may assume that the higher rates in some regions may be due to the better hospital care and facilities that may have attracted individuals from other regions. As much as we would recommend additional financial input into the localities within the LB regios, more support evidence regarding the healthcare system within the areas would further support the need for financial support. More data on admission would offer comparison across the groupings as opposed to reliance on graphical interpretations on SMR rates only.
+
