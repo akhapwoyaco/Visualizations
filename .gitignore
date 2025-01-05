@@ -3,5 +3,6 @@
 .RData
 .Ruserdata
 /AustralianWeather
-
+.ipynb_checkpoints
 .RDataTmp
+.zip
