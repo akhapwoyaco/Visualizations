@@ -5,5 +5,5 @@
 /AustralianWeather
 .ipynb_checkpoints
 .RDataTmp
-.zip
+**.zip
 ./health_Impact_files/figure-html
